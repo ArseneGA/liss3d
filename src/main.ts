@@ -178,15 +178,11 @@ worker.onmessage = (ev: MessageEvent<WorkerResponse>) => {
   lastMesh = { positions: r.positions, indices: r.indices, validation: r.validation };
   renderStats(readParams(), r);
 
-  // Export autorisé dès qu'il y a des faces. Si le mesh n'est pas
-  // watertight+manifold, on prévient dans le label mais on laisse le choix.
-  const hasMesh = r.validation.F > 0;
+  // Export toujours autorisé (même mesh invalide). Tooltip indicatif seulement.
   const printable = r.validation.watertight && r.validation.manifold;
-  exportBtn.disabled = !hasMesh;
-  exportBtn.textContent = printable ? "Export STL" : "Export STL ⚠";
   exportBtn.title = printable
     ? "Mesh watertight + manifold, imprimable."
-    : "Mesh non-manifold / non-watertight : STL exportable mais probablement pas imprimable sans réparation (ex. Meshmixer, Blender 3D Print Toolbox).";
+    : "Mesh non-manifold/non-watertight : exportable mais probablement à réparer (Blender 3D Print Toolbox, Meshmixer) avant impression.";
 
   if (pendingParams) {
     const next = pendingParams;
@@ -231,7 +227,6 @@ bindUI((params) => {
   updateReachWarnings(params);
   renderStats(params, null);
   meshObj.visible = false;
-  exportBtn.disabled = true;
   scheduleBuild(params, 200);
 });
 
