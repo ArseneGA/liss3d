@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lissajous 3D Tube Generator</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <canvas id="viewport"></canvas>
+
+    <aside id="panel">
+      <h1>Lissajous 3D</h1>
+
+      <section>
+        <h2>Courbe</h2>
+        <label>p <input type="range" id="p" min="0" max="10" step="0.01" value="5" /><input type="number" id="p-num" min="0" max="10" step="0.01" value="5.00" /></label>
+        <label>q <input type="range" id="q" min="0" max="10" step="0.01" value="4" /><input type="number" id="q-num" min="0" max="10" step="0.01" value="4.00" /></label>
+        <label>r <input type="range" id="r" min="0" max="10" step="0.01" value="3" /><input type="number" id="r-num" min="0" max="10" step="0.01" value="3.00" /></label>
+        <label>φx <input type="range" id="phix" min="0" max="2" step="0.01" value="0" /><input type="number" id="phix-num" min="0" max="2" step="0.01" value="0.00" /></label>
+        <label>φy <input type="range" id="phiy" min="0" max="2" step="0.01" value="0" /><input type="number" id="phiy-num" min="0" max="2" step="0.01" value="0.00" /></label>
+        <label>φz <input type="range" id="phiz" min="0" max="2" step="0.01" value="0" /><input type="number" id="phiz-num" min="0" max="2" step="0.01" value="0.00" /></label>
+        <label>L <input type="range" id="L" min="1" max="40" step="1" value="2" /><input type="number" id="L-num" min="1" max="40" step="1" value="2" /></label>
+      </section>
+
+      <section>
+        <h2>Tube</h2>
+        <label>R <input type="range" id="R" min="0" max="1" step="0.005" value="0.15" /><input type="number" id="R-num" min="0" max="1" step="0.005" value="0.150" /></label>
+        <label>k <input type="range" id="k" min="0" max="0.5" step="0.005" value="0" /><input type="number" id="k-num" min="0" max="0.5" step="0.005" value="0.000" /></label>
+        <fieldset class="mode">
+          <legend>Mode</legend>
+          <label><input type="radio" name="mode" value="A" checked /> A — arêtes vives</label>
+          <label><input type="radio" name="mode" value="B" /> B — fillet lisse</label>
+        </fieldset>
+      </section>
+
+      <section>
+        <h2>Maillage</h2>
+        <label>Résolution
+          <select id="res">
+            <option value="32">32³</option>
+            <option value="64">64³</option>
+            <option value="96">96³</option>
+            <option value="128" selected>128³</option>
+            <option value="160">160³</option>
+            <option value="192">192³</option>
+            <option value="256">256³</option>
+          </select>
+        </label>
+        <label>Taille finale (mm) <input type="number" id="scaleMm" min="10" max="500" step="1" value="80" /></label>
+      </section>
+
+      <section id="stats">
+        <h2>Validation</h2>
+        <div id="stats-body">—</div>
+        <button id="build" type="button">Compute mesh</button>
+        <button id="export" type="button" disabled>Export STL</button>
+      </section>
+
+      <section id="warnings"></section>
+    </aside>
+  </body>
+  <script type="module" src="/src/main.ts"></script>
+</html>
