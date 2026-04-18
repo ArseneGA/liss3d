@@ -27,13 +27,18 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-const dir = new THREE.DirectionalLight(0xffffff, 0.9);
-dir.position.set(3, 4, 2);
-scene.add(dir);
-const dir2 = new THREE.DirectionalLight(0xffffff, 0.4);
-dir2.position.set(-2, -1, -3);
-scene.add(dir2);
+// HemisphereLight : lumière "ciel + sol" qui touche toutes les orientations
+// (évite les faces pitch-black quand les normales pointent loin des directionnels).
+const hemi = new THREE.HemisphereLight(0xd0deff, 0x403020, 1.8);
+scene.add(hemi);
+
+const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
+keyLight.position.set(3, 4, 2);
+scene.add(keyLight);
+
+const fillLight = new THREE.DirectionalLight(0xffffff, 0.8);
+fillLight.position.set(-2, -1, -3);
+scene.add(fillLight);
 
 const grid = new THREE.GridHelper(4, 20, 0x2a2f36, 0x1a1d21);
 scene.add(grid);
