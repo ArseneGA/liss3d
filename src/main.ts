@@ -27,16 +27,20 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
 
-// HemisphereLight : lumière "ciel + sol" qui touche toutes les orientations
-// (évite les faces pitch-black quand les normales pointent loin des directionnels).
-const hemi = new THREE.HemisphereLight(0xd0deff, 0x403020, 1.8);
+// Ambient pur pour garantir un plancher de luminosité — évite les faces
+// complètement noires quand les normales pointent "ailleurs" (non-manifold/
+// non-orientable : on préfère voir la matière, même mal orientée).
+scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+
+// HemisphereLight : sky/ground gris clairs, les deux côtés restent visibles.
+const hemi = new THREE.HemisphereLight(0xffffff, 0x707580, 1.0);
 scene.add(hemi);
 
-const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.5);
 keyLight.position.set(3, 4, 2);
 scene.add(keyLight);
 
-const fillLight = new THREE.DirectionalLight(0xffffff, 0.8);
+const fillLight = new THREE.DirectionalLight(0xffffff, 0.6);
 fillLight.position.set(-2, -1, -3);
 scene.add(fillLight);
 
@@ -174,8 +178,15 @@ worker.onmessage = (ev: MessageEvent<WorkerResponse>) => {
   lastMesh = { positions: r.positions, indices: r.indices, validation: r.validation };
   renderStats(readParams(), r);
 
-  const canExport = r.validation.watertight && r.validation.manifold && r.validation.F > 0;
-  exportBtn.disabled = !canExport;
+  // Export autorisé dès qu'il y a des faces. Si le mesh n'est pas
+  // watertight+manifold, on prévient dans le label mais on laisse le choix.
+  const hasMesh = r.validation.F > 0;
+  const printable = r.validation.watertight && r.validation.manifold;
+  exportBtn.disabled = !hasMesh;
+  exportBtn.textContent = printable ? "Export STL" : "Export STL ⚠";
+  exportBtn.title = printable
+    ? "Mesh watertight + manifold, imprimable."
+    : "Mesh non-manifold / non-watertight : STL exportable mais probablement pas imprimable sans réparation (ex. Meshmixer, Blender 3D Print Toolbox).";
 
   if (pendingParams) {
     const next = pendingParams;
