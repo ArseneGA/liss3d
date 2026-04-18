@@ -66,6 +66,21 @@ const meshObj = new THREE.Mesh(meshGeom, meshMat);
 meshObj.visible = false;
 scene.add(meshObj);
 
+function sanitizeNormals(geom: THREE.BufferGeometry): void {
+  const attr = geom.getAttribute("normal") as THREE.BufferAttribute | undefined;
+  if (!attr) return;
+  const arr = attr.array as Float32Array;
+  for (let i = 0; i < arr.length; i += 3) {
+    const x = arr[i], y = arr[i + 1], z = arr[i + 2];
+    const bad = !Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)
+      || (x * x + y * y + z * z) < 1e-10;
+    if (bad) {
+      arr[i] = 0; arr[i + 1] = 1; arr[i + 2] = 0;
+    }
+  }
+  attr.needsUpdate = true;
+}
+
 function setWarnings(messages: { text: string; level: "warn" | "err" }[]): void {
   warningsEl.innerHTML = "";
   for (const m of messages) {
@@ -172,6 +187,10 @@ worker.onmessage = (ev: MessageEvent<WorkerResponse>) => {
   meshGeom.setAttribute("position", new THREE.BufferAttribute(r.positions, 3));
   meshGeom.setIndex(new THREE.BufferAttribute(r.indices, 1));
   meshGeom.computeVertexNormals();
+  // Sanitize : si le mesh est non-orientable, computeVertexNormals peut produire
+  // des normales NaN ou nulles (faces voisines qui s'annulent). Remplace par un
+  // fallback arbitraire pour éviter les pixels noirs dans le shader.
+  sanitizeNormals(meshGeom);
   meshGeom.computeBoundingSphere();
   meshObj.visible = true;
 
