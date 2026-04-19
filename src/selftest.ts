@@ -68,6 +68,7 @@ function nearestVoxel(grid: Grid, x: number, y: number, z: number): [number, num
 function lissajousTests(): Record<string, number> {
   const params: Params = {
     p: 5, q: 4, r: 3,
+    A: 1, B: 1, C: 1,
     phix: 0.3, phiy: 0.7, phiz: 1.1,
     L: 2,
     R: 0.15, k: 0,

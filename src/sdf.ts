@@ -1,20 +1,20 @@
+import { curveHalfExtent } from "./lissajous";
 import type { Grid, Params, SDFResult } from "./types";
 
 const FAR = 1e10;
 
 /**
- * Grille isotrope centrée sur [-1, 1]³ + padding.
- *
- * Résolution n = params.resolution (cap utilisateur). h dérivé de n et de la
- * taille de bbox pour que la grille couvre exactement [-1-pad, 1+pad]³.
+ * Grille cubique centrée sur l'origine. Demi-côté = max(A, B, C) + R + 3h.
+ * Résolution n = params.resolution (cap utilisateur).
  */
 export function buildGrid(params: Params): Grid {
   const n = params.resolution;
-  const hEstimate = 2 / n;
+  const half = Math.max(curveHalfExtent(params), 1e-3);
+  const hEstimate = (2 * half) / n;
   const padding = params.R + 3 * hEstimate;
-  const span = 2 + 2 * padding;
+  const span = 2 * half + 2 * padding;
   const h = span / n;
-  const origin = -(1 + padding);
+  const origin = -(half + padding);
   return {
     nx: n, ny: n, nz: n,
     h,

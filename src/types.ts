@@ -4,6 +4,9 @@ export interface Params {
   p: number; // fréquence en x
   q: number; // fréquence en y
   r: number; // fréquence en z
+  A: number; // amplitude en x
+  B: number; // amplitude en y
+  C: number; // amplitude en z
   phix: number;
   phiy: number;
   phiz: number;

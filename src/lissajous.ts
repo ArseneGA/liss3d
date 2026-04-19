@@ -1,34 +1,33 @@
 import type { Params, Vec3 } from "./types";
 
-// Borne supérieure du paramètre t : t ∈ [0, L·π].
 function tMax(params: Params): number {
   return params.L * Math.PI;
 }
 
-// γ(t) = (sin(p·t + φx·π), sin(q·t + φy·π), sin(r·t + φz·π))
+// γ(t) = (A·sin(p·t + φx·π), B·sin(q·t + φy·π), C·sin(r·t + φz·π))
 export function gamma(t: number, params: Params): Vec3 {
   return {
-    x: Math.sin(params.p * t + params.phix * Math.PI),
-    y: Math.sin(params.q * t + params.phiy * Math.PI),
-    z: Math.sin(params.r * t + params.phiz * Math.PI),
+    x: params.A * Math.sin(params.p * t + params.phix * Math.PI),
+    y: params.B * Math.sin(params.q * t + params.phiy * Math.PI),
+    z: params.C * Math.sin(params.r * t + params.phiz * Math.PI),
   };
 }
 
-// γ'(t) = (p·cos(p·t + φx·π), q·cos(q·t + φy·π), r·cos(r·t + φz·π))
+// γ'(t) = (A·p·cos(…), B·q·cos(…), C·r·cos(…))
 export function gammaPrime(t: number, params: Params): Vec3 {
   return {
-    x: params.p * Math.cos(params.p * t + params.phix * Math.PI),
-    y: params.q * Math.cos(params.q * t + params.phiy * Math.PI),
-    z: params.r * Math.cos(params.r * t + params.phiz * Math.PI),
+    x: params.A * params.p * Math.cos(params.p * t + params.phix * Math.PI),
+    y: params.B * params.q * Math.cos(params.q * t + params.phiy * Math.PI),
+    z: params.C * params.r * Math.cos(params.r * t + params.phiz * Math.PI),
   };
 }
 
-// γ''(t) = (−p²·sin(…), −q²·sin(…), −r²·sin(…))
+// γ''(t) = (−A·p²·sin(…), −B·q²·sin(…), −C·r²·sin(…))
 export function gammaDoublePrime(t: number, params: Params): Vec3 {
   return {
-    x: -params.p * params.p * Math.sin(params.p * t + params.phix * Math.PI),
-    y: -params.q * params.q * Math.sin(params.q * t + params.phiy * Math.PI),
-    z: -params.r * params.r * Math.sin(params.r * t + params.phiz * Math.PI),
+    x: -params.A * params.p * params.p * Math.sin(params.p * t + params.phix * Math.PI),
+    y: -params.B * params.q * params.q * Math.sin(params.q * t + params.phiy * Math.PI),
+    z: -params.C * params.r * params.r * Math.sin(params.r * t + params.phiz * Math.PI),
   };
 }
 
@@ -56,18 +55,19 @@ export function estimateMaxCurvature(params: Params, nSamples = 2000): number {
   return kmax;
 }
 
-// Borne sup de |γ'(t)| sur [0, L·π] : √(p² + q² + r²).
+// Borne sup de |γ'(t)| : √((A·p)² + (B·q)² + (C·r)²).
 export function maxSpeed(params: Params): number {
-  return Math.hypot(params.p, params.q, params.r);
+  return Math.hypot(params.A * params.p, params.B * params.q, params.C * params.r);
 }
 
 /**
- * Polyligne (N+1 points) sur t ∈ [0, L·π] avec erreur Hausdorff corde
- * < hTarget/4 sur la pire courbure.
- *
- * Fermée ssi γ(0) = γ(L·π). Condition suffisante : p, q, r ∈ ℤ et L pair.
- * Dans les autres cas, le tube aura deux bouchons sphériques aux extrémités.
+ * Demi-extent maximal de la courbe en monde (max(A, B, C)). Utilisé pour
+ * dimensionner la grille SDF.
  */
+export function curveHalfExtent(params: Params): number {
+  return Math.max(params.A, params.B, params.C);
+}
+
 export function samplePolyline(params: Params, hTarget: number): Float32Array {
   const tm = tMax(params);
   const kmax = Math.max(estimateMaxCurvature(params), 1e-6);

@@ -1,9 +1,10 @@
 import type { Params } from "./types";
 
-type NumericId = "p" | "q" | "r" | "phix" | "phiy" | "phiz" | "L" | "R" | "k";
+type NumericId = "p" | "q" | "r" | "A" | "B" | "C" | "phix" | "phiy" | "phiz" | "L" | "R" | "k";
 
 const NUMERIC_DECIMALS: Record<NumericId, number> = {
   p: 2, q: 2, r: 2,
+  A: 2, B: 2, C: 2,
   phix: 2, phiy: 2, phiz: 2,
   L: 0,
   R: 3, k: 3,
@@ -22,6 +23,9 @@ export function readParams(): Params {
     p: num("p"),
     q: num("q"),
     r: num("r"),
+    A: num("A"),
+    B: num("B"),
+    C: num("C"),
     phix: num("phix"),
     phiy: num("phiy"),
     phiz: num("phiz"),
@@ -83,7 +87,7 @@ function bindNumeric(id: NumericId, onChange: () => void): void {
 }
 
 export function bindUI(onChange: (p: Params) => void): void {
-  const numericIds: NumericId[] = ["p", "q", "r", "phix", "phiy", "phiz", "L", "R", "k"];
+  const numericIds: NumericId[] = ["p", "q", "r", "A", "B", "C", "phix", "phiy", "phiz", "L", "R", "k"];
 
   const fire = (): void => onChange(readParams());
 
