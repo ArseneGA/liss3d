@@ -55,11 +55,14 @@ const curveLine = new THREE.Line(curveGeom, new THREE.LineBasicMaterial({ color:
 scene.add(curveLine);
 
 const meshGeom = new THREE.BufferGeometry();
+// flatShading: les normales sont dérivées par triangle directement dans le
+// fragment shader (dFdx/dFdy des positions). Immunise contre les vertices
+// non-orientables qui produisent des normales NaN en smooth shading.
 const meshMat = new THREE.MeshStandardMaterial({
   color: 0xc8cdd3,
-  metalness: 0.15,
-  roughness: 0.55,
-  flatShading: false,
+  metalness: 0.1,
+  roughness: 0.6,
+  flatShading: true,
   side: THREE.DoubleSide,
 });
 const meshObj = new THREE.Mesh(meshGeom, meshMat);
