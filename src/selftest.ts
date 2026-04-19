@@ -70,7 +70,7 @@ function lissajousTests(): Record<string, number> {
     p: 5, q: 4, r: 3,
     A: 1, B: 1, C: 1,
     phix: 0.3, phiy: 0.7, phiz: 1.1,
-    L: 2,
+    L: 2, N: 0,
     R: 0.15, k: 0,
     mode: "A",
     resolution: 128,

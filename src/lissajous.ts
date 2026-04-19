@@ -68,12 +68,22 @@ export function curveHalfExtent(params: Params): number {
   return Math.max(params.A, params.B, params.C);
 }
 
+/**
+ * Polyligne sur t ∈ [0, L·π]. Si params.N > 0, on prend N points (N−1 segments).
+ * Sinon, N est calculé automatiquement pour garantir erreur Hausdorff corde
+ * < hTarget/4 sur la pire courbure.
+ */
 export function samplePolyline(params: Params, hTarget: number): Float32Array {
   const tm = tMax(params);
-  const kmax = Math.max(estimateMaxCurvature(params), 1e-6);
-  const vmax = Math.max(maxSpeed(params), 1e-6);
-  const chordMax = Math.sqrt((2 * hTarget) / kmax);
-  const n = Math.max(64, Math.ceil((tm * vmax) / chordMax));
+  let n: number; // nombre de segments (points = n + 1)
+  if (params.N > 0) {
+    n = Math.max(1, Math.floor(params.N - 1));
+  } else {
+    const kmax = Math.max(estimateMaxCurvature(params), 1e-6);
+    const vmax = Math.max(maxSpeed(params), 1e-6);
+    const chordMax = Math.sqrt((2 * hTarget) / kmax);
+    n = Math.max(64, Math.ceil((tm * vmax) / chordMax));
+  }
   const out = new Float32Array((n + 1) * 3);
   for (let i = 0; i <= n; i++) {
     const t = (i / n) * tm;

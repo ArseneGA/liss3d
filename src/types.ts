@@ -11,6 +11,7 @@ export interface Params {
   phiy: number;
   phiz: number;
   L: number; // longueur de la courbe : t ∈ [0, L·π], L entier
+  N: number; // nombre de points d'échantillonnage ; 0 = auto (dérivé de κ_max)
   R: number; // rayon du tube
   k: number;
   mode: Mode;

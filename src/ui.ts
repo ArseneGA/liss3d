@@ -1,12 +1,12 @@
 import type { Params } from "./types";
 
-type NumericId = "p" | "q" | "r" | "A" | "B" | "C" | "phix" | "phiy" | "phiz" | "L" | "R" | "k";
+type NumericId = "p" | "q" | "r" | "A" | "B" | "C" | "phix" | "phiy" | "phiz" | "L" | "N" | "R" | "k";
 
 const NUMERIC_DECIMALS: Record<NumericId, number> = {
   p: 2, q: 2, r: 2,
   A: 2, B: 2, C: 2,
   phix: 2, phiy: 2, phiz: 2,
-  L: 0,
+  L: 0, N: 0,
   R: 3, k: 3,
 };
 
@@ -30,6 +30,7 @@ export function readParams(): Params {
     phiy: num("phiy"),
     phiz: num("phiz"),
     L: num("L"),
+    N: num("N"),
     R: num("R"),
     k: num("k"),
     mode: (modeInput?.value === "B" ? "B" : "A"),
@@ -87,7 +88,7 @@ function bindNumeric(id: NumericId, onChange: () => void): void {
 }
 
 export function bindUI(onChange: (p: Params) => void): void {
-  const numericIds: NumericId[] = ["p", "q", "r", "A", "B", "C", "phix", "phiy", "phiz", "L", "R", "k"];
+  const numericIds: NumericId[] = ["p", "q", "r", "A", "B", "C", "phix", "phiy", "phiz", "L", "N", "R", "k"];
 
   const fire = (): void => onChange(readParams());
 
