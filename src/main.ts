@@ -156,8 +156,28 @@ function renderStats(params: Params, r: WorkerResponse | null): void {
     return;
   }
   const v = r.validation;
+  // Conversion unités monde → mm : calée sur le même scaling que l'export STL
+  // (plus grande dimension de la bbox mesh ↦ scaleMm).
+  let bboxMax = 0;
+  if (lastMesh) {
+    let minX = Infinity, minY = Infinity, minZ = Infinity;
+    let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
+    for (let i = 0; i < lastMesh.positions.length; i += 3) {
+      const x = lastMesh.positions[i], y = lastMesh.positions[i + 1], z = lastMesh.positions[i + 2];
+      if (x < minX) minX = x; if (x > maxX) maxX = x;
+      if (y < minY) minY = y; if (y > maxY) maxY = y;
+      if (z < minZ) minZ = z; if (z > maxZ) maxZ = z;
+    }
+    bboxMax = Math.max(maxX - minX, maxY - minY, maxZ - minZ);
+  }
+  const worldToMm = bboxMax > 0 ? params.scaleMm / bboxMax : 0;
+  const shellLine = r.shellThickness > 0
+    ? `coque: t = ${r.shellThickness.toFixed(3)} (${(r.shellThickness * worldToMm).toFixed(2)} mm)`
+    : `mode: plein`;
   statsEl.textContent = [
     ...header,
+    `jonctions: ${r.clusterCount}`,
+    shellLine,
     `V = ${v.V}    E = ${v.E}    F = ${v.F}`,
     `χ = V−E+F = ${v.euler}`,
     `watertight ${ok(v.watertight)}  manifold ${ok(v.manifold)}  orientable ${ok(v.orientable)}`,
@@ -261,8 +281,32 @@ exportBtn.addEventListener("click", () => {
   if (!lastMesh) return;
   const params = readParams();
   const buffer = exportSTLBinary(lastMesh.positions, lastMesh.indices, params.scaleMm);
-  const fmt = (n: number): string => n.toFixed(2).replace(".", "_");
-  const name = `lissajous_p${fmt(params.p)}_q${fmt(params.q)}_r${fmt(params.r)}_R${fmt(params.R)}_${params.resolution}_mode${params.mode}.stl`;
+  // Nombre formaté avec le minimum de décimales (ex: 1, 0.5, 1.25),
+  // '.' → '_' et '-' → 'm' pour rester sûr dans un nom de fichier.
+  const fmt = (n: number): string => {
+    if (!Number.isFinite(n)) return String(n);
+    return n.toString().replace("-", "m").replace(".", "_");
+  };
+  const parts: string[] = [
+    `p=${fmt(params.p)}`,
+    `q=${fmt(params.q)}`,
+    `r=${fmt(params.r)}`,
+    `A=${fmt(params.A)}`,
+    `B=${fmt(params.B)}`,
+    `C=${fmt(params.C)}`,
+    `phix=${fmt(params.phix)}`,
+    `phiy=${fmt(params.phiy)}`,
+    `phiz=${fmt(params.phiz)}`,
+    `L=${fmt(params.L)}`,
+    `N=${fmt(params.N)}`,
+    `R=${fmt(params.R)}`,
+    `k=${fmt(params.k)}`,
+    `mode=${params.mode}`,
+    `res=${params.resolution}`,
+    `scale=${fmt(params.scaleMm)}`,
+    `shell=${fmt(params.shellThickness ?? 0)}`,
+  ];
+  const name = `liss3d_${parts.join("_")}.stl`;
   downloadSTL(buffer, name);
 });
 
